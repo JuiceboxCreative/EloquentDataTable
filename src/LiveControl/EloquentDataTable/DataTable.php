@@ -214,7 +214,7 @@ class DataTable
             if ($this->getDatabaseDriver() == 'sqlite') {
                 return '(' . implode(' || " " || ', $this->getRawColumns($column)) . ')';
             }
-            return 'CONCAT(' . implode(', " ", ', $this->getRawColumns($column)) . ')';
+            return 'LOWER(CONCAT(' . implode(', " ", ', $this->getRawColumns($column)) . '))';
         }
 
         return Model::resolveConnection()->getQueryGrammar()->wrap($column);
@@ -285,9 +285,13 @@ class DataTable
         $this->builder = $this->builder->where(
             function ($query) use ($search) {
                 foreach ($this->columns as $column) {
+                    if ($column == 'id') {
+                        continue;
+                    }
+
                     $query->orWhere(
                         new raw($this->getRawColumnQuery($column)),
-                        'like',
+                        'ilike',
                         '%' . $search . '%'
                     );
                 }
@@ -301,6 +305,10 @@ class DataTable
     private function addColumnFilters()
     {
         foreach ($this->columns as $i => $column) {
+            if ($column == 'id') {
+                continue;
+            }
+
             if (static::$versionTransformer->isColumnSearched($i)) {
                 $this->builder->where(
                     new raw($this->getRawColumnQuery($column)),

@@ -32,7 +32,7 @@ class Version110Transformer implements VersionTransformerContract
 
     public function getColumnSearchValue($columnIndex)
     {
-        return $_POST['columns'][$columnIndex]['search']['value'];
+        return strtolower($_POST['columns'][$columnIndex]['search']['value']);
     }
 
     public function isOrdered()
